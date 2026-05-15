@@ -437,3 +437,73 @@ a.nav-btn.active { color: #fff; }
 }
 .empty-banner h3 { color: #fff; margin: 0 0 4px; font-size: 18px; }
 .empty-banner p { margin: 0; opacity: .9; font-size: 13px; color: rgba(255,255,255,.95); }
+
+/* ============ RELATÓRIOS (DRE / DFC / KPIs) ============ */
+.kpi-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 960px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+.kpi-card {
+  background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
+  padding: 16px 18px; box-shadow: var(--shadow-sm);
+  border-left: 3px solid var(--gold-600);
+}
+.kpi-card.pos { border-left-color: var(--green-500); }
+.kpi-card.neg { border-left-color: var(--rose-500); }
+.kpi-card-label { font-size: 11px; color: var(--gray-600); text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+.kpi-card-value {
+  font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 700;
+  color: var(--carbon-900); margin-top: 4px; font-variant-numeric: tabular-nums;
+}
+.kpi-card-value.pos { color: var(--green-500); }
+.kpi-card-value.neg { color: var(--rose-500); }
+.kpi-card-sub { font-size: 11px; color: var(--gray-600); margin-top: 4px; }
+
+.report-section {
+  background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius-lg);
+  padding: 20px 22px; margin-bottom: 18px; box-shadow: var(--shadow-sm);
+}
+.report-section h3 {
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--gold-300);
+  color: var(--carbon-900);
+}
+.report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.report-table td { padding: 8px 10px; }
+.report-table tr.linha td { border-bottom: 1px solid var(--gray-100); }
+.report-table tr.total td {
+  font-weight: 700; background: var(--gold-50); color: var(--carbon-900);
+  border-top: 1px solid var(--gold-300); border-bottom: 1px solid var(--gold-300);
+}
+.report-table tr.subtotal td {
+  font-weight: 600; background: #fafafa; color: var(--carbon-700);
+}
+.report-table tr.grupo td {
+  font-weight: 600; color: var(--carbon-800); padding-top: 14px;
+}
+.report-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.report-table .num.pos { color: var(--green-500); font-weight: 600; }
+.report-table .num.neg { color: var(--rose-500); }
+.report-table .indent { padding-left: 28px; color: var(--gray-600); font-size: 12px; }
+.report-table .indent.deeper { padding-left: 48px; }
+
+.expandable summary {
+  cursor: pointer; list-style: none; padding: 6px 0;
+  font-weight: 600; color: var(--carbon-700); font-size: 12px;
+}
+.expandable summary::-webkit-details-marker { display: none; }
+.expandable summary::before { content: "▸ "; color: var(--gold-600); transition: transform .15s; display: inline-block; }
+.expandable[open] summary::before { content: "▾ "; }
+
+.period-filter {
+  display: flex; gap: 8px; align-items: center;
+  background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
+  padding: 10px 14px; margin-bottom: 16px; box-shadow: var(--shadow-sm);
+}
+.period-filter label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--carbon-700); text-transform: uppercase; letter-spacing: .3px; }
+.period-filter select, .period-filter input {
+  font-family: inherit; font-size: 13px; padding: 6px 10px;
+  border: 1px solid var(--gray-200); border-radius: 6px; background: #fff;
+}

@@ -50,6 +50,7 @@ export default function TopBar({ userName }: { userName: string }) {
     { href: '/plano', label: 'Plano', needsEmp: true },
     { href: '/regras', label: 'Regras', needsEmp: true },
     { href: '/conciliar', label: 'Conciliar', needsEmp: true },
+    { href: '/relatorios', label: 'Relatórios', needsEmp: true },
     { href: '/historico', label: 'Histórico', needsEmp: true },
   ];
 

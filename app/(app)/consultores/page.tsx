@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, FormEvent } from 'react';
 import { toast } from '@/components/Toast';
+import { notifyRefresh, useRefreshListener } from '@/lib/refresh';
 
 type Consultor = {
   id: string;
@@ -29,6 +30,7 @@ export default function ConsultoresPage() {
     setMe(m.user);
   }
   useEffect(() => { reload(); }, []);
+  useRefreshListener(['consultores', 'empresas', 'all'], reload);
 
   function openCreate() {
     setEditingId(null);
@@ -53,6 +55,7 @@ export default function ConsultoresPage() {
     if (!res.ok) return toast(data.error || 'Erro', 'error');
     toast(editingId ? 'Consultor atualizado' : 'Consultor cadastrado', 'success');
     setShowForm(false);
+    notifyRefresh('consultores');
     reload();
   }
 
@@ -61,6 +64,7 @@ export default function ConsultoresPage() {
     const res = await fetch(`/api/consultores/${id}`, { method: 'DELETE' });
     if (!res.ok) return toast('Erro ao excluir', 'error');
     toast('Consultor excluído');
+    notifyRefresh('consultores', 'empresas');
     reload();
   }
 
@@ -74,6 +78,7 @@ export default function ConsultoresPage() {
     });
     if (!res.ok) return toast('Erro', 'error');
     toast(c.isApproved ? 'Acesso revogado' : 'Conta aprovada', 'success');
+    notifyRefresh('consultores');
     reload();
   }
 

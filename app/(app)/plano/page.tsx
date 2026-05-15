@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useEmpresaAtiva } from '@/lib/useEmpresaAtiva';
 import { toast } from '@/components/Toast';
+import { notifyRefresh, useRefreshListener } from '@/lib/refresh';
 
 type Entry = { id: string; grupo: string; categoria: string; subgrupo: string | null; nivel1: string | null; chaveKey: string | null; tipo: string };
 
@@ -19,14 +20,15 @@ export default function PlanoPage() {
     setPlano(p.plano || []);
     setEmpresaNome(e.empresa?.fantasia || e.empresa?.nome || '');
   }
-  useEffect(() => { reload(); }, [empresaId]);
+  useEffect(() => { reload(); /* eslint-disable-next-line */ }, [empresaId]);
+  useRefreshListener(['plano', 'dados', 'all'], reload);
 
   async function add() {
     const res = await fetch(`/api/empresas/${empresaId}/plano`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ grupo: '', categoria: 'Nova categoria', tipo: 'Saída' }),
     });
-    if (res.ok) reload();
+    if (res.ok) { notifyRefresh('plano'); reload(); }
   }
 
   async function update(entry: Entry, field: keyof Entry, value: string) {
@@ -42,7 +44,7 @@ export default function PlanoPage() {
   async function del(id: string, cat: string) {
     if (!confirm(`Excluir "${cat}"?`)) return;
     const res = await fetch(`/api/empresas/${empresaId}/plano/${id}`, { method: 'DELETE' });
-    if (res.ok) { reload(); toast('Excluído'); }
+    if (res.ok) { notifyRefresh('plano'); reload(); toast('Excluído'); }
   }
 
   if (!empresaId) return <div className="empty"><div className="empty-icon">▦</div>Selecione uma empresa no topo.</div>;

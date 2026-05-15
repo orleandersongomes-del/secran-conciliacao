@@ -2,6 +2,7 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { useEmpresaAtiva } from '@/lib/useEmpresaAtiva';
 import { toast } from '@/components/Toast';
+import { notifyRefresh, useRefreshListener } from '@/lib/refresh';
 
 type Rule = { id: string; field: string; keyword: string; categoria: string; tipo: string | null };
 type Cat = { id: string; categoria: string };
@@ -26,7 +27,8 @@ export default function RegrasPage() {
     setEmpresaNome(e.empresa?.fantasia || e.empresa?.nome || '');
     if (p.plano?.length && !form.categoria) setForm((f) => ({ ...f, categoria: p.plano[0].categoria }));
   }
-  useEffect(() => { reload(); }, [empresaId]);
+  useEffect(() => { reload(); /* eslint-disable-next-line */ }, [empresaId]);
+  useRefreshListener(['regras', 'plano', 'dados', 'all'], reload);
 
   async function onSubmit(ev: FormEvent) {
     ev.preventDefault();
@@ -39,12 +41,13 @@ export default function RegrasPage() {
     toast('Regra criada', 'success');
     setShowForm(false);
     setForm({ field: 'descricao', keyword: '', categoria: plano[0]?.categoria || '', tipo: '' });
+    notifyRefresh('regras');
     reload();
   }
 
   async function del(id: string) {
     const res = await fetch(`/api/empresas/${empresaId}/regras/${id}`, { method: 'DELETE' });
-    if (res.ok) reload();
+    if (res.ok) { notifyRefresh('regras'); reload(); }
   }
 
   if (!empresaId) return <div className="empty"><div className="empty-icon">▦</div>Selecione uma empresa.</div>;

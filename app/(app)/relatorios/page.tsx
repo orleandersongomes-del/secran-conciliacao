@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useEmpresaAtiva } from '@/lib/useEmpresaAtiva';
+import { useRefreshListener } from '@/lib/refresh';
 
 type Bucket = { total: number; categorias: { categoria: string; valor: number; count: number }[] };
 
@@ -108,6 +109,7 @@ export default function RelatoriosPage() {
   }
 
   useEffect(() => { reload(); /* eslint-disable-next-line */ }, [empresaId, tipo, ano, mes, inicio, fim]);
+  useRefreshListener(['transactions', 'plano', 'dados', 'all'], reload);
 
   if (!empresaId) return <div className="empty"><div className="empty-icon">▦</div>Selecione uma empresa.</div>;
 

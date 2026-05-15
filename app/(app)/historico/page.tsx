@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useEmpresaAtiva } from '@/lib/useEmpresaAtiva';
 import { toast } from '@/components/Toast';
+import { useRefreshListener } from '@/lib/refresh';
 import * as XLSX from 'xlsx';
 
 type Tx = {
@@ -26,7 +27,8 @@ export default function HistoricoPage() {
     setTxs(t.transactions || []);
     setEmpresaNome(e.empresa?.fantasia || e.empresa?.nome || '');
   }
-  useEffect(() => { reload(); }, [empresaId]);
+  useEffect(() => { reload(); /* eslint-disable-next-line */ }, [empresaId]);
+  useRefreshListener(['transactions', 'dados', 'all'], reload);
 
   function exportXlsx() {
     if (!txs.length) return toast('Nada para exportar', 'error');

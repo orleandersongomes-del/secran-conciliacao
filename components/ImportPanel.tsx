@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useEmpresaAtiva } from '@/lib/useEmpresaAtiva';
+import { notifyRefresh } from '@/lib/refresh';
 import { toast } from './Toast';
 import * as XLSX from 'xlsx';
 
@@ -90,7 +90,6 @@ export default function ImportPanel({
   empresaAtivaId: string;
   hasPlano: boolean;
 }) {
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
 
   async function handlePlano(file: File) {
@@ -114,7 +113,7 @@ export default function ImportPanel({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       toast(`Plano: ${data.plano.length} categorias importadas`, 'success');
-      router.refresh();
+      notifyRefresh('plano', 'transactions', 'dados');
     } catch (e: any) {
       toast('Erro: ' + e.message, 'error');
     } finally {
@@ -148,7 +147,7 @@ export default function ImportPanel({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       toast(`${source}: ${data.imported} lançamentos`, 'success');
-      router.refresh();
+      notifyRefresh('plano', 'transactions', 'dados');
     } catch (e: any) {
       toast('Erro: ' + e.message, 'error');
     } finally {
@@ -184,7 +183,7 @@ export default function ImportPanel({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       toast(`OFX: ${data.imported} lançamentos`, 'success');
-      router.refresh();
+      notifyRefresh('plano', 'transactions', 'dados');
     } catch (e: any) {
       toast('Erro: ' + e.message, 'error');
     } finally {

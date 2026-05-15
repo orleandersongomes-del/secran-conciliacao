@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import ImportPanel from '@/components/ImportPanel';
 import { useEmpresaAtiva } from '@/lib/useEmpresaAtiva';
+import { useRefreshListener } from '@/lib/refresh';
 
 type Summary = {
   empresas: number;
@@ -51,7 +52,9 @@ export default function PainelPage() {
 
   useEffect(() => {
     loadSummary();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [empresaAtivaId]);
+  useRefreshListener(['empresas', 'consultores', 'plano', 'transactions', 'dados', 'all'], loadSummary);
 
   return (
     <>

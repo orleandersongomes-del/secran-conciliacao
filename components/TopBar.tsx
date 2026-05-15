@@ -1,7 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useRefreshListener } from '@/lib/refresh';
 
 type Empresa = { id: string; nome: string; fantasia: string | null };
 
@@ -11,20 +12,31 @@ export default function TopBar({ userName }: { userName: string }) {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [empresaAtivaId, setEmpresaAtivaId] = useState('');
 
-  useEffect(() => {
+  const loadEmpresas = useCallback(() => {
     fetch('/api/empresas')
       .then((r) => r.json())
       .then((d) => {
-        setEmpresas(d.empresas || []);
+        const list: Empresa[] = d.empresas || [];
+        setEmpresas(list);
         const saved = localStorage.getItem('secran-empresa-ativa') || '';
-        if (saved && d.empresas?.some((e: Empresa) => e.id === saved)) {
+        if (saved && list.some((e) => e.id === saved)) {
           setEmpresaAtivaId(saved);
-        } else if (d.empresas?.[0]) {
-          setEmpresaAtivaId(d.empresas[0].id);
-          localStorage.setItem('secran-empresa-ativa', d.empresas[0].id);
+        } else if (list[0]) {
+          setEmpresaAtivaId(list[0].id);
+          localStorage.setItem('secran-empresa-ativa', list[0].id);
+          window.dispatchEvent(new CustomEvent('empresa-changed', { detail: list[0].id }));
+        } else {
+          setEmpresaAtivaId('');
         }
-      });
+      })
+      .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    loadEmpresas();
+  }, [loadEmpresas]);
+
+  useRefreshListener(['empresas', 'all'], loadEmpresas);
 
   function onChangeEmpresa(id: string) {
     setEmpresaAtivaId(id);

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, FormEvent } from 'react';
 import { toast } from '@/components/Toast';
+import { notifyRefresh, useRefreshListener } from '@/lib/refresh';
 
 type Consultor = { id: string; name: string; cargo: string | null };
 type Empresa = {
@@ -28,6 +29,7 @@ export default function EmpresasPage() {
     setConsultores(c.consultores || []);
   }
   useEffect(() => { reload(); }, []);
+  useRefreshListener(['empresas', 'consultores', 'all'], reload);
 
   function openCreate() {
     setEditingId(null);
@@ -54,6 +56,7 @@ export default function EmpresasPage() {
     if (!res.ok) return toast(data.error || 'Erro', 'error');
     toast(editingId ? 'Empresa atualizada' : 'Empresa cadastrada', 'success');
     setShowForm(false);
+    notifyRefresh('empresas');
     reload();
   }
 
@@ -62,6 +65,7 @@ export default function EmpresasPage() {
     const res = await fetch(`/api/empresas/${id}`, { method: 'DELETE' });
     if (!res.ok) return toast('Erro ao excluir', 'error');
     toast('Empresa excluída');
+    notifyRefresh('empresas');
     reload();
   }
 

@@ -2,6 +2,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useEmpresaAtiva } from '@/lib/useEmpresaAtiva';
 import { toast } from '@/components/Toast';
+import { notifyRefresh, useRefreshListener } from '@/lib/refresh';
 
 type Tx = {
   id: string;
@@ -48,7 +49,8 @@ export default function ConciliarPage() {
     setEmpresaNome(e.empresa?.fantasia || e.empresa?.nome || '');
     setSelected(new Set());
   }
-  useEffect(() => { reload(); }, [empresaId, filters.status, filters.source]);
+  useEffect(() => { reload(); /* eslint-disable-next-line */ }, [empresaId, filters.status, filters.source]);
+  useRefreshListener(['transactions', 'plano', 'regras', 'dados', 'all'], reload);
 
   async function patchTx(id: string, patch: Partial<Tx>) {
     setTxs((arr) => arr.map((t) => (t.id === id ? { ...t, ...patch } : t)));
@@ -61,12 +63,14 @@ export default function ConciliarPage() {
     if (!t.sugCategoria) return toast('Selecione uma categoria antes', 'error');
     await patchTx(t.id, { status: 'approved' });
     toast('Conciliado', 'success');
+    notifyRefresh('transactions');
     reload();
   }
 
   async function reject(t: Tx) {
     await patchTx(t.id, { status: 'rejected' });
     toast('Rejeitado');
+    notifyRefresh('transactions');
     reload();
   }
 
@@ -79,6 +83,7 @@ export default function ConciliarPage() {
     const data = await res.json();
     if (!res.ok) return toast(data.error || 'Erro', 'error');
     toast(action === 'approve' ? `Aprovados: ${data.approved}${data.skipped ? ` · sem categoria: ${data.skipped}` : ''}` : `${data.rejected} rejeitados`, 'success');
+    notifyRefresh('transactions');
     reload();
   }
 

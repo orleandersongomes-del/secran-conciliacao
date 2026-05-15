@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Secran Gestão">
+  <defs>
+    <clipPath id="hex-clip">
+      <polygon points="50,6 150,6 194,100 150,194 50,194 6,100"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#hex-clip)">
+    <!-- Topo preto: banda superior + lateral direita descendo até a faixa dourada -->
+    <path d="M 0,0 L 200,0 L 200,86 L 130,86 L 130,30 L 0,30 Z" fill="#1A1A1A"/>
+    <!-- Faixa dourada central -->
+    <rect x="0" y="86" width="200" height="28" fill="#BA7211"/>
+    <!-- Base preta: lateral esquerda subindo até a faixa + banda inferior -->
+    <path d="M 0,114 L 70,114 L 70,170 L 200,170 L 200,200 L 0,200 Z" fill="#1A1A1A"/>
+  </g>
+</svg>

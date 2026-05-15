@@ -1,0 +1,36 @@
+# dependências
+node_modules/
+
+# arquivos de teste temporários
+_test_*.xlsx
+_gen_*.js
+_*.xml
+
+# build/cache
+dist/
+.cache/
+.parcel-cache/
+
+# editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# logs
+*.log
+npm-debug.log*
+
+# ambientes
+.env
+.env.local
+.env.*.local
+
+# planilhas grandes do usuário (apenas modelos ficam no repo)
+maranet_*.xlsx
+contas_pagas*.xlsx
+contas_recebidas*.xlsx
+*_test.xlsx

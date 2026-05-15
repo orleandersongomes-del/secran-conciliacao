@@ -14,6 +14,9 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Credenciais inválidas' }, { status: 401 });
     const ok = await verifyPassword(password, user.passwordHash);
     if (!ok) return NextResponse.json({ error: 'Credenciais inválidas' }, { status: 401 });
+    if (!user.isApproved) {
+      return NextResponse.json({ error: 'Conta aguardando aprovação do administrador' }, { status: 403 });
+    }
     await setSessionCookie({ id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin });
     return NextResponse.json({ ok: true, user: { id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin } });
   } catch (err: any) {

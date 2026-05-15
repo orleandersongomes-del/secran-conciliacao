@@ -7,6 +7,7 @@ export default function SignupPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: '', email: '', password: '', cargo: '', telefone: '' });
   const [error, setError] = useState('');
+  const [pendingMsg, setPendingMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
   function upd(k: keyof typeof form, v: string) {
@@ -16,6 +17,7 @@ export default function SignupPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
+    setPendingMsg('');
     setLoading(true);
     const res = await fetch('/api/auth/signup', {
       method: 'POST',
@@ -28,6 +30,10 @@ export default function SignupPage() {
       setError(data.error || 'Erro no cadastro');
       return;
     }
+    if (data.pending) {
+      setPendingMsg(data.message || 'Aguardando aprovação do administrador.');
+      return;
+    }
     router.push('/painel');
     router.refresh();
   }
@@ -36,8 +42,8 @@ export default function SignupPage() {
     <div className="auth-screen">
       <form className="auth-card" onSubmit={onSubmit}>
         <img src="/assets/logo.png" alt="Secran Gestão" className="auth-logo" />
-        <h1>Criar conta</h1>
-        <p className="muted">O primeiro usuário cadastrado vira admin automaticamente.</p>
+        <h1>Solicitar acesso</h1>
+        <p className="muted">Novas contas precisam ser aprovadas pelo administrador. O primeiro usuário cadastrado vira admin automaticamente.</p>
 
         <label>
           <span>Nome completo *</span>
@@ -68,9 +74,14 @@ export default function SignupPage() {
         </label>
 
         {error && <div className="auth-error">{error}</div>}
+        {pendingMsg && (
+          <div style={{ background: '#fef9ef', border: '1px solid var(--gold-300)', color: 'var(--gold-700)', padding: '12px 14px', borderRadius: 8, fontSize: 13 }}>
+            ✓ {pendingMsg}
+          </div>
+        )}
 
-        <button className="btn btn-primary" type="submit" disabled={loading}>
-          {loading ? 'Criando…' : 'Criar conta'}
+        <button className="btn btn-primary" type="submit" disabled={loading || !!pendingMsg}>
+          {loading ? 'Enviando…' : pendingMsg ? 'Solicitação enviada' : 'Solicitar acesso'}
         </button>
 
         <div className="auth-sep">

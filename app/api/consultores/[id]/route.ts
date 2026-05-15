@@ -21,10 +21,19 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       }
       data.passwordHash = await hashPassword(body.password);
     }
+    // só admin pode aprovar/revogar e dar/tirar admin
+    if (body.isApproved !== undefined) {
+      if (!me.isAdmin) return NextResponse.json({ error: 'Apenas admin pode aprovar contas' }, { status: 403 });
+      data.isApproved = Boolean(body.isApproved);
+    }
+    if (body.isAdmin !== undefined) {
+      if (!me.isAdmin) return NextResponse.json({ error: 'Apenas admin pode alterar permissão' }, { status: 403 });
+      data.isAdmin = Boolean(body.isAdmin);
+    }
     const user = await prisma.user.update({
       where: { id: params.id },
       data,
-      select: { id: true, email: true, name: true, cargo: true, telefone: true, isAdmin: true },
+      select: { id: true, email: true, name: true, cargo: true, telefone: true, isAdmin: true, isApproved: true },
     });
     return NextResponse.json({ consultor: user });
   } catch (err: any) {

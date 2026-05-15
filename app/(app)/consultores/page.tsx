@@ -9,6 +9,7 @@ type Consultor = {
   cargo: string | null;
   telefone: string | null;
   isAdmin: boolean;
+  isApproved: boolean;
   empresasMembro: { empresa: { nome: string; fantasia: string | null } }[];
 };
 
@@ -63,6 +64,19 @@ export default function ConsultoresPage() {
     reload();
   }
 
+  async function toggleApproval(c: Consultor) {
+    const action = c.isApproved ? 'revogar acesso de' : 'aprovar';
+    if (!confirm(`Deseja ${action} "${c.name}"?`)) return;
+    const res = await fetch(`/api/consultores/${c.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isApproved: !c.isApproved }),
+    });
+    if (!res.ok) return toast('Erro', 'error');
+    toast(c.isApproved ? 'Acesso revogado' : 'Conta aprovada', 'success');
+    reload();
+  }
+
   const podeAdicionar = me?.isAdmin;
 
   return (
@@ -110,21 +124,35 @@ export default function ConsultoresPage() {
         <table className="table">
           <thead>
             <tr>
-              <th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cargo</th><th>Empresas vinculadas</th><th></th>
+              <th>Status</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cargo</th><th>Empresas vinculadas</th><th></th>
             </tr>
           </thead>
           <tbody>
             {consultores.length === 0 && (
-              <tr><td colSpan={6} style={{ padding: 40, textAlign: 'center', color: 'var(--gray-600)' }}>Nenhum consultor cadastrado.</td></tr>
+              <tr><td colSpan={7} style={{ padding: 40, textAlign: 'center', color: 'var(--gray-600)' }}>Nenhum consultor cadastrado.</td></tr>
             )}
             {consultores.map((c) => (
               <tr key={c.id}>
+                <td>
+                  {c.isApproved
+                    ? <span className="tag-pill success">aprovado</span>
+                    : <span className="tag-pill" style={{ background: '#fef0d6', color: '#8E580B' }}>pendente</span>}
+                </td>
                 <td><strong>{c.name}</strong>{c.isAdmin && <span className="tag-pill" style={{ marginLeft: 6 }}>admin</span>}</td>
                 <td>{c.email}</td>
                 <td>{c.telefone || '—'}</td>
                 <td>{c.cargo || '—'}</td>
                 <td>{c.empresasMembro.length ? c.empresasMembro.map((e, i) => <span key={i} className="tag-pill" style={{ marginRight: 4 }}>{e.empresa.fantasia || e.empresa.nome}</span>) : <span className="tag-pill muted">nenhuma</span>}</td>
                 <td>
+                  {me?.isAdmin && me.id !== c.id && (
+                    <button
+                      className="btn btn-ghost"
+                      style={{ padding: '5px 10px', fontSize: 11, marginRight: 4, color: c.isApproved ? 'var(--rose-500)' : 'var(--green-500)' }}
+                      onClick={() => toggleApproval(c)}
+                    >
+                      {c.isApproved ? 'Revogar' : 'Aprovar'}
+                    </button>
+                  )}
                   {(me?.isAdmin || me?.id === c.id) && <button className="btn btn-ghost" style={{ padding: '5px 10px', fontSize: 11 }} onClick={() => openEdit(c)}>Editar</button>}{' '}
                   {me?.isAdmin && me.id !== c.id && <button className="row-action" onClick={() => onDelete(c.id, c.name)}>×</button>}
                 </td>

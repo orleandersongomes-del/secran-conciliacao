@@ -8,7 +8,7 @@ export async function GET() {
   try {
     await requireUser();
     const users = await prisma.user.findMany({
-      orderBy: { name: 'asc' },
+      orderBy: [{ isApproved: 'asc' }, { name: 'asc' }],
       select: {
         id: true,
         email: true,
@@ -16,6 +16,7 @@ export async function GET() {
         cargo: true,
         telefone: true,
         isAdmin: true,
+        isApproved: true,
         createdAt: true,
         empresasMembro: { select: { empresaId: true, empresa: { select: { nome: true, fantasia: true } } } },
       },
@@ -49,8 +50,9 @@ export async function POST(req: Request) {
         name: String(name).trim(),
         cargo: cargo ? String(cargo).trim() : null,
         telefone: telefone ? String(telefone).trim() : null,
+        isApproved: true, // criado pelo admin → já aprovado
       },
-      select: { id: true, email: true, name: true, cargo: true, telefone: true, isAdmin: true },
+      select: { id: true, email: true, name: true, cargo: true, telefone: true, isAdmin: true, isApproved: true },
     });
     return NextResponse.json({ consultor: user });
   } catch (err: any) {

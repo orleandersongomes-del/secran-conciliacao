@@ -19,7 +19,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'E-mail já cadastrado' }, { status: 409 });
     }
     const userCount = await prisma.user.count();
-    const isAdmin = userCount === 0; // primeiro usuário vira admin
+    const isFirst = userCount === 0;
+    // 1º usuário: admin auto-aprovado. Demais: ficam pendentes até admin aprovar.
     const user = await prisma.user.create({
       data: {
         email: emailNorm,
@@ -27,11 +28,19 @@ export async function POST(req: Request) {
         name: String(name).trim(),
         cargo: cargo ? String(cargo).trim() : null,
         telefone: telefone ? String(telefone).trim() : null,
-        isAdmin,
+        isAdmin: isFirst,
+        isApproved: isFirst,
       },
     });
-    await setSessionCookie({ id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin });
-    return NextResponse.json({ ok: true, user: { id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin } });
+    if (isFirst) {
+      await setSessionCookie({ id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin });
+      return NextResponse.json({ ok: true, user: { id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin } });
+    }
+    return NextResponse.json({
+      ok: true,
+      pending: true,
+      message: 'Cadastro recebido. Aguardando aprovação do administrador para liberar o acesso.',
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Falha no cadastro' }, { status: 500 });
   }

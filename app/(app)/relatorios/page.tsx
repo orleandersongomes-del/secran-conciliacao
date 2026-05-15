@@ -82,7 +82,7 @@ function LinhaDRE({ label, valor, bucket, level = 0, isTotal, isSubtotal, sign }
 export default function RelatoriosPage() {
   const empresaId = useEmpresaAtiva();
   const now = new Date();
-  const [tipo, setTipo] = useState<'mes' | 'ano' | 'custom'>('mes');
+  const [tipo, setTipo] = useState<'mes' | 'ano' | 'custom'>('ano'); // default Anual: cobre o ano todo
   const [ano, setAno] = useState(now.getFullYear());
   const [mes, setMes] = useState(now.getMonth() + 1);
   const [inicio, setInicio] = useState(new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10));
@@ -90,6 +90,7 @@ export default function RelatoriosPage() {
   const [report, setReport] = useState<Report | null>(null);
   const [empresaNome, setEmpresaNome] = useState('');
   const [loading, setLoading] = useState(false);
+  const [totalAprovadas, setTotalAprovadas] = useState(0);
 
   async function reload() {
     if (!empresaId) return;
@@ -99,12 +100,14 @@ export default function RelatoriosPage() {
       params.set('inicio', inicio);
       params.set('fim', fim);
     }
-    const [r, e] = await Promise.all([
+    const [r, e, tx] = await Promise.all([
       fetch(`/api/empresas/${empresaId}/relatorios?${params}`).then((x) => x.json()),
       fetch(`/api/empresas/${empresaId}`).then((x) => x.json()),
+      fetch(`/api/empresas/${empresaId}/transactions?status=approved`).then((x) => x.json()),
     ]);
     setReport(r.report);
     setEmpresaNome(e.empresa?.fantasia || e.empresa?.nome || '');
+    setTotalAprovadas(tx.transactions?.length || 0);
     setLoading(false);
   }
 
@@ -145,6 +148,21 @@ export default function RelatoriosPage() {
       </div>
 
       {!report && <div className="empty"><div className="empty-icon">⟳</div>Carregando…</div>}
+      {report && report.indicadores.quantidadeTransacoes === 0 && totalAprovadas > 0 && (
+        <div className="empty-banner" style={{ marginBottom: 16 }}>
+          <h3>Não há transações conciliadas neste período</h3>
+          <p>
+            Esta empresa tem <strong>{totalAprovadas} transações aprovadas</strong>, mas nenhuma cai dentro do filtro selecionado (<strong>{report.periodo.label}</strong>).
+            Troque o período pra "Anual" ou ajuste o mês/intervalo acima.
+          </p>
+        </div>
+      )}
+      {report && report.indicadores.quantidadeTransacoes === 0 && totalAprovadas === 0 && (
+        <div className="empty-banner" style={{ marginBottom: 16 }}>
+          <h3>Ainda não há conciliações aprovadas</h3>
+          <p>Importe os relatórios no Painel e aprove em Conciliar pra ver a DRE e a DFC populadas.</p>
+        </div>
+      )}
       {report && (
         <>
           {/* === INDICADORES === */}

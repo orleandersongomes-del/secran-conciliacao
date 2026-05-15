@@ -1,63 +1,80 @@
 # Secran Gestão · Conciliação Financeira
 
-Sistema web de conciliação financeira para a Secran Gestão, com identidade visual oficial e suporte multi-empresa.
+Aplicação web multi-usuário para conciliação financeira da Secran Gestão. Cada consultor faz login, gerencia múltiplas empresas e cada empresa tem seu próprio plano de contas, regras e histórico de conciliações.
 
-## Funcionalidades
+## Stack
 
-- **Cadastro de empresas** com vínculo de consultores
-- **Cadastro de consultores** com cargo, e-mail e telefone
-- **Plano de contas por empresa** (import via xlsx ou cadastro manual)
-- **Regras de conciliação por empresa** (palavra-chave em descrição, fornecedor ou categoria do relatório)
-- **Importação de relatórios** xlsx Nibo/Secran (contas pagas e recebidas) ou OFX bancário
-- **Sugestões automáticas** baseadas em regras e categoria do relatório
-- **Aprovação individual ou em lote** com filtros por status, fonte e busca
-- **Histórico exportável** em xlsx por empresa
-
-## Stack atual (v1 · client-side)
-
-- Vanilla HTML + CSS + JavaScript
-- [SheetJS](https://sheetjs.com/) via CDN para parsing/escrita de xlsx
+- **Next.js 14** (App Router) + TypeScript
+- **Prisma ORM** + **PostgreSQL** (Vercel Postgres / Neon)
+- Auth e-mail/senha (**bcrypt** + **JWT** em cookie httpOnly via **jose**)
+- **SheetJS** (`xlsx`) para parsing/escrita de planilhas
 - Parser OFX SGML inline
-- Persistência via `localStorage`
-- Identidade visual Secran (dourado `#BA7211` + carbono `#212123`)
-- Fontes Montserrat + Outfit (Google Fonts)
+- Identidade visual oficial: dourado `#BA7211` + carbono `#212123` + Montserrat/Outfit
+- Deploy: **Vercel**
 
 ## Rodando localmente
 
-Basta abrir `index.html` no Chrome. Ou subir um servidor estático:
-
 ```bash
-npx http-server -p 8080
+npm install
+cp .env.example .env
+# preencha DATABASE_URL e JWT_SECRET no .env
+npm run db:push    # cria as tabelas no banco
+npm run dev        # http://localhost:3000
 ```
 
-Acesse `http://localhost:8080`.
+## Variáveis de ambiente
 
-## Estrutura
-
-```
-secran-conciliacao/
-├── index.html         # Layout + 7 abas: Painel, Empresas, Consultores, Plano, Regras, Conciliar, Histórico
-├── styles.css         # Identidade visual Secran
-├── app.js             # Estado multi-empresa, parsers, sugestões, conciliação
-└── assets/
-    ├── logo.png       # Logo Secran transparente
-    ├── logo-mark.svg  # Fallback SVG (símbolo)
-    └── logo-full.svg  # Fallback SVG (símbolo + texto)
+```env
+DATABASE_URL="postgresql://user:password@host/db?sslmode=require"
+JWT_SECRET="32+ caracteres aleatórios"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
-## Próximos passos (v2 · online)
+Gere um JWT_SECRET seguro com `openssl rand -base64 32`.
 
-- [ ] Migrar para Next.js 14 (App Router) + TypeScript
-- [ ] Prisma + Postgres (Vercel Postgres)
-- [ ] Auth e-mail/senha (bcrypt + JWT)
-- [ ] API routes escopadas por empresa e consultor
-- [ ] Deploy na Vercel
-- [ ] Compartilhamento de dados entre consultores
+## Schema
+
+- **User**: consultor (login). Primeiro cadastro vira admin.
+- **Empresa**: cliente da Secran. Tem um `owner` (User) e vários `consultores` vinculados.
+- **EmpresaConsultor**: tabela de junção User × Empresa.
+- **ChartAccount**: plano de contas escopado por empresa.
+- **Rule**: regras de conciliação escopadas por empresa.
+- **Transaction**: lançamentos importados (xlsx/OFX) com sugestões e workflow `pending → approved/rejected`.
+
+## Rotas
+
+| Página | Acesso |
+|---|---|
+| `/login`, `/signup` | público |
+| `/painel` | usuário logado |
+| `/empresas`, `/consultores` | usuário logado (cadastros) |
+| `/plano`, `/regras`, `/conciliar`, `/historico` | logado + empresa ativa |
+
+## API
+
+| Rota | Método | Função |
+|---|---|---|
+| `/api/auth/login` | POST | Login |
+| `/api/auth/signup` | POST | Cadastro (1º é admin) |
+| `/api/auth/logout` | POST | Logout |
+| `/api/auth/me` | GET | Sessão atual |
+| `/api/empresas` | GET/POST | Lista/cria empresas |
+| `/api/empresas/[id]` | GET/PATCH/DELETE | CRUD empresa |
+| `/api/empresas/[id]/plano` | GET/POST/PATCH | Plano (POST substitui tudo no import) |
+| `/api/empresas/[id]/plano/[entryId]` | PATCH/DELETE | Linha do plano |
+| `/api/empresas/[id]/regras` | GET/POST | Regras |
+| `/api/empresas/[id]/regras/[ruleId]` | DELETE | Remove regra |
+| `/api/empresas/[id]/transactions` | GET | Lista (filtros: status, source, q) |
+| `/api/empresas/[id]/transactions/import` | POST | Importa lote |
+| `/api/empresas/[id]/transactions/[txId]` | PATCH | Atualiza/aprova/rejeita 1 |
+| `/api/empresas/[id]/transactions/batch` | POST | Aprova/rejeita em lote |
+| `/api/consultores` | GET/POST | Lista/cria consultores (POST: só admin) |
+| `/api/consultores/[id]` | PATCH/DELETE | Editar/excluir |
 
 ## Templates xlsx aceitos
 
-- **Plano de Contas**: `Grupo | Categoria | Subgrupo | nivel 1 | KEY | Tipo`
-- **Contas Recebidas**: `Id | Vencimento | Competência | Previsto para | Data de pagamento | CPF/CNPJ | Nome | Descrição | Referência | Categoria | Detalhamento | Centro de Custo | Valor categoria/centro de custo | Identificador | Banco | Número NFS-e`
-- **Contas Pagas**: idem ao recebidas, sem `Número NFS-e`
+- **Plano**: `Grupo | Categoria | Subgrupo | nivel 1 | KEY | Tipo`
+- **Recebidas**: `Id | Vencimento | Competência | Previsto para | Data de pagamento | CPF/CNPJ | Nome | Descrição | Referência | Categoria | Detalhamento | Centro de Custo | Valor categoria/centro de custo | Identificador | Banco | Número NFS-e`
+- **Pagas**: igual a recebidas, sem `Número NFS-e`
 
-Os templates ficam disponíveis no botão "Modelo" de cada cartão no Painel.
+Templates disponíveis no botão "Modelo" de cada cartão no Painel.

@@ -387,3 +387,53 @@ h3 { font-size: 16px; margin: 0 0 6px; color: var(--carbon-900); }
   .topnav { flex-wrap: wrap; }
   .form-grid.cols-2, .form-grid.cols-3, .form-grid.cols-4 { grid-template-columns: 1fr; }
 }
+
+/* ============ AUTH SCREENS ============ */
+.auth-screen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--gold-50), #fff 60%, var(--gold-50));
+  padding: 32px 16px;
+}
+.auth-card {
+  width: 100%; max-width: 420px;
+  background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius-lg);
+  padding: 36px 32px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.auth-logo { height: 64px; width: auto; align-self: center; margin-bottom: 8px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,.15)); }
+.auth-card h1 { text-align: center; margin: 0; }
+.auth-card p.muted { text-align: center; margin: 0 0 8px; }
+.auth-card label { display: flex; flex-direction: column; gap: 4px; }
+.auth-card label > span { font-size: 11px; font-weight: 700; color: var(--carbon-700); text-transform: uppercase; letter-spacing: .5px; }
+.auth-card input {
+  font-family: inherit; font-size: 14px; padding: 11px 13px;
+  border: 1px solid var(--gray-200); border-radius: 8px; background: #fff;
+}
+.auth-card input:focus { outline: none; border-color: var(--gold-600); box-shadow: 0 0 0 3px rgba(186,114,17,.12); }
+.auth-card .btn { width: 100%; justify-content: center; padding: 12px 14px; font-size: 13px; }
+.auth-error {
+  background: #fef2f3; border: 1px solid #f4d2d4; color: var(--rose-500);
+  padding: 10px 12px; border-radius: 8px; font-size: 13px;
+}
+.auth-sep {
+  text-align: center; font-size: 13px; color: var(--gray-600);
+  padding-top: 10px; border-top: 1px dashed var(--gray-200); margin-top: 6px;
+}
+.auth-sep a { color: var(--gold-700); font-weight: 600; text-decoration: none; }
+.auth-sep a:hover { text-decoration: underline; }
+
+/* ============ NAV BTN LINK ============ */
+.nav-btn { display: inline-block; text-decoration: none; }
+a.nav-btn { color: rgba(255,255,255,.7); }
+a.nav-btn.active { color: #fff; }
+
+/* ============ INLINE EMPTY HINT ============ */
+.empty-banner {
+  background: linear-gradient(135deg, var(--gold-600), var(--gold-700));
+  color: #fff; padding: 24px 28px; border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+}
+.empty-banner h3 { color: #fff; margin: 0 0 4px; font-size: 18px; }
+.empty-banner p { margin: 0; opacity: .9; font-size: 13px; color: rgba(255,255,255,.95); }

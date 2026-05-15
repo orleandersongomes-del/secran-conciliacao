@@ -1,22 +1,16 @@
 # dependências
 node_modules/
+.pnp
+.pnp.*
 
-# arquivos de teste temporários
-_test_*.xlsx
-_gen_*.js
-_*.xml
+# Next.js
+.next/
+out/
+next-env.d.ts
 
-# build/cache
-dist/
-.cache/
-.parcel-cache/
-
-# editor
+# editor / OS
 .vscode/
 .idea/
-*.swp
-
-# OS
 .DS_Store
 Thumbs.db
 
@@ -29,8 +23,11 @@ npm-debug.log*
 .env.local
 .env.*.local
 
-# planilhas grandes do usuário (apenas modelos ficam no repo)
-maranet_*.xlsx
-contas_pagas*.xlsx
-contas_recebidas*.xlsx
-*_test.xlsx
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+
+# arquivos de teste temporários
+_test_*.xlsx
+_gen_*.js
+_*.xml

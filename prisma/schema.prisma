@@ -1,0 +1,119 @@
+// Secran Gestão · Conciliação Financeira
+// Schema multi-empresa com auth via email/senha
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  cargo        String?
+  telefone     String?
+  isAdmin      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  empresasOwned  Empresa[]          @relation("EmpresaOwner")
+  empresasMembro EmpresaConsultor[]
+  approvedTx     Transaction[]      @relation("ApprovedBy")
+}
+
+model Empresa {
+  id        String   @id @default(cuid())
+  nome      String
+  fantasia  String?
+  cnpj      String?
+  ownerId   String
+  owner     User     @relation("EmpresaOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  consultores  EmpresaConsultor[]
+  plano        ChartAccount[]
+  regras       Rule[]
+  transactions Transaction[]
+}
+
+model EmpresaConsultor {
+  empresaId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([empresaId, userId])
+  @@index([userId])
+}
+
+model ChartAccount {
+  id        String   @id @default(cuid())
+  empresaId String
+  grupo     String
+  categoria String
+  subgrupo  String?
+  nivel1    String?
+  chaveKey  String?
+  tipo      String // 'Entrada' | 'Saída'
+  createdAt DateTime @default(now())
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+
+  @@index([empresaId])
+}
+
+model Rule {
+  id        String   @id @default(cuid())
+  empresaId String
+  field     String // 'descricao' | 'nome' | 'categoriaOriginal'
+  keyword   String
+  categoria String
+  tipo      String? // 'recebimento' | 'pagamento' | 'transferencia' | ''
+  createdAt DateTime @default(now())
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+
+  @@index([empresaId])
+}
+
+model Transaction {
+  id                String   @id @default(cuid())
+  empresaId         String
+  source            String // 'recebidas' | 'pagas' | 'ofx'
+  extId             String?
+  data              String?
+  fornecedor        String?
+  descricao         String?
+  valor             Float
+  categoriaOriginal String?
+  centroCusto       String?
+  banco             String?
+  cpfCnpj           String?
+  tipo              String // 'recebimento' | 'pagamento' | 'transferencia'
+  status            String  @default("pending") // 'pending' | 'approved' | 'rejected'
+
+  sugCategoria  String?
+  sugFornecedor String?
+  sugCentro     String?
+  sugTipo       String?
+  sugReason     String?
+
+  approvedById String?
+  approvedBy   User?    @relation("ApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+
+  @@index([empresaId, status])
+}

@@ -507,3 +507,75 @@ a.nav-btn.active { color: #fff; }
   font-family: inherit; font-size: 13px; padding: 6px 10px;
   border: 1px solid var(--gray-200); border-radius: 6px; background: #fff;
 }
+
+/* ============ EXPAND BUTTON INLINE ============ */
+.dre-line { position: relative; }
+.dre-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px;
+  border: 1px solid var(--gold-300); border-radius: 4px;
+  background: #fff; color: var(--gold-700);
+  font-family: 'Outfit', monospace; font-weight: 700; font-size: 12px;
+  line-height: 1; padding: 0;
+  cursor: pointer; margin-right: 8px;
+  transition: all .12s;
+  vertical-align: middle;
+}
+.dre-toggle:hover { background: var(--gold-50); border-color: var(--gold-600); }
+.dre-toggle.aberto { background: var(--gold-600); color: #fff; border-color: var(--gold-600); }
+.dre-toggle:disabled { opacity: .3; cursor: not-allowed; }
+
+.cat-detail-row td {
+  background: #fcfaf6 !important;
+  padding-top: 0 !important; padding-bottom: 0 !important;
+  border-top: 1px dashed var(--gold-300);
+}
+.cat-detail-inner {
+  padding: 8px 0 12px 32px;
+}
+.cat-detail-inner table { width: 100%; }
+.cat-detail-inner td {
+  padding: 4px 8px !important; border: 0 !important;
+  font-size: 12px; color: var(--gray-700);
+  background: transparent !important;
+}
+.cat-detail-inner td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ============ COMPARATIVO DRE ============ */
+.report-table.comparativo th {
+  background: var(--gold-50); color: var(--carbon-700);
+  text-align: right; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px;
+  padding: 10px 8px; border-bottom: 2px solid var(--gold-300);
+}
+.report-table.comparativo th:first-child { text-align: left; }
+.report-table.comparativo th.av, .report-table.comparativo th.ah {
+  background: #f5f5f7; color: var(--gray-600); font-size: 10px;
+  width: 50px; padding: 10px 4px;
+}
+.report-table.comparativo td.av, .report-table.comparativo td.ah {
+  font-size: 11px; color: var(--gray-600);
+  font-variant-numeric: tabular-nums; text-align: right;
+  width: 50px; padding: 8px 4px;
+}
+.report-table.comparativo td.ah.up { color: var(--green-500); font-weight: 600; }
+.report-table.comparativo td.ah.down { color: var(--rose-500); font-weight: 600; }
+
+/* ============ HISTÓRICO FILTROS ============ */
+.filtros-historico {
+  background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
+  padding: 14px 16px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+  align-items: end;
+}
+@media (max-width: 960px) { .filtros-historico { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px) { .filtros-historico { grid-template-columns: repeat(2, 1fr); } }
+.filtros-historico label { display: flex; flex-direction: column; gap: 4px; }
+.filtros-historico label > span { font-size: 10px; font-weight: 700; color: var(--carbon-700); text-transform: uppercase; letter-spacing: .5px; }
+.filtros-historico input, .filtros-historico select {
+  font-family: inherit; font-size: 13px; padding: 7px 10px;
+  border: 1px solid var(--gray-200); border-radius: 6px; background: #fff;
+}
+.filtros-historico input:focus, .filtros-historico select:focus {
+  outline: none; border-color: var(--gold-600); box-shadow: 0 0 0 3px rgba(186,114,17,.12);
+}

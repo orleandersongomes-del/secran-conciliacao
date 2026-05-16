@@ -377,9 +377,34 @@ export function periodoDoMes(ano: number, mes: number): Periodo {
 }
 
 export function periodoDoAno(ano: number): Periodo {
-  return { inicio: new Date(ano, 0, 1), fim: new Date(ano, 11, 31, 23, 59, 59, 999), label: `Ano ${ano}` };
+  return { inicio: new Date(ano, 0, 1), fim: new Date(ano, 11, 31, 23, 59, 59, 999), label: String(ano) };
 }
 
 export function periodoCustom(inicio: Date, fim: Date, label?: string): Periodo {
   return { inicio, fim, label: label || `${inicio.toLocaleDateString('pt-BR')} a ${fim.toLocaleDateString('pt-BR')}` };
+}
+
+// === COMPARATIVO MULTI-PERÍODO ===
+
+export type ComparativoResult = {
+  periodos: Periodo[];
+  reports: ReportResult[]; // mesmo índice dos períodos
+};
+
+export function buildComparativo(transactions: Transaction[], plano: ChartAccount[], periodos: Periodo[]): ComparativoResult {
+  return {
+    periodos,
+    reports: periodos.map((p) => buildReport(transactions, plano, p)),
+  };
+}
+
+// AV: % do valor sobre a base (receita líquida do mesmo período)
+// AH: % de variação entre período atual e período anterior
+export function calcAV(valor: number, base: number): number {
+  if (!base) return 0;
+  return Math.round((valor / base) * 10000) / 100; // 2 casas
+}
+export function calcAH(atual: number, anterior: number): number | null {
+  if (!anterior || anterior === 0) return null;
+  return Math.round(((atual - anterior) / Math.abs(anterior)) * 10000) / 100;
 }
